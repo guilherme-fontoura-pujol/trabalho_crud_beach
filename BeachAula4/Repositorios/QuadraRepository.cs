@@ -3,61 +3,47 @@ using BeachAula4.Entidades;
 using BeachAula4.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace BeachAula4.Repositorios
+namespace BeachAula4.Repositorios;
+
+public class QuadraRepository : IQuadraRepository
 {
-    public class QuadraRepository : IQuadraRepository
+    private readonly AppDbContext _context;
+
+    public QuadraRepository(AppDbContext context)
     {
-        private readonly AppDbContext context;
+        _context = context;
+    }
 
-        public QuadraRepository(AppDbContext context)
-        {
-            this.context = context;
-        }
-        public async Task<List<Quadra>> ListarAsync()
-        {
-            return await context.Quadras.AsNoTracking().ToListAsync();
-        }
-        public async Task<List<Quadra>> ListarAtivasAsync()
-        {
-            return await context.Quadras.AsNoTracking().Where(q => q.Ativa).ToListAsync();
-        }
-        public async Task<Quadra?> BuscarPorIdAsync(int id)
-        {
-            return await context.Quadras.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
-        }
-        public async Task AdicionarAsync(Quadra quadra)
-        {
-            await context.Quadras.AddAsync(quadra);
-            await context.SaveChangesAsync();
-        }
-        public async Task<bool> AtualizarAsync(Quadra quadra)
-        {
-            var existente = await context.Quadras.FindAsync(quadra.Id);
-            if (existente == null)
-            {
-                return false;
-            }
-            existente.Name = quadra.Name;
-            existente.ValorHora = quadra.ValorHora;
-            existente.Ativa = quadra.Ativa;
-            existente.Descricao = quadra.Descricao;
+    public async Task<IEnumerable<Quadra>> ObterTodasAsync() =>
+        await _context.Quadras.ToListAsync();
 
-            await context.SaveChangesAsync();
+    public async Task<Quadra?> ObterPorIdAsync(int id) =>
+        await _context.Quadras.FindAsync(id);
 
-            return true;
-        }
+    public async Task AdicionarAsync(Quadra quadra)
+    {
+        await _context.Quadras.AddAsync(quadra);
+        await _context.SaveChangesAsync();
+    }
 
-        public async Task<bool> ExcluirAsync(int id)
-        {
-            var quadra = await context.Quadras.FindAsync(id);
+    public async Task AtualizarAsync(Quadra quadra)
+    {
+        _context.Quadras.Update(quadra);
+        await _context.SaveChangesAsync();
+    }
 
-            if (quadra == null)
-                return false;
+    public async Task DeletarAsync(Quadra quadra)
+    {
+        _context.Quadras.Remove(quadra);
+        await _context.SaveChangesAsync();
+    }
 
-            context.Quadras.Remove(quadra);
-
-            await context.SaveChangesAsync();
-            return true;
-        }
+    // Consulta avançada usando LINQ
+    public async Task<IEnumerable<Quadra>> ObterFiltradasAsync(bool? coberta, decimal valorMaximo)
+    {
+        return await _context.Quadras
+            .Where(q => (!coberta.HasValue || q.Coberta == coberta.Value) && q.ValorHora <= valorMaximo)
+            .OrderBy(q => q.ValorHora)
+            .ToListAsync();
     }
 }
