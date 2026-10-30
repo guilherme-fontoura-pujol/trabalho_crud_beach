@@ -10,8 +10,11 @@ builder.Services.AddDbContext<AppDbContext>();
 builder.Services.AddScoped<IQuadraRepository, QuadraRepository>();
 builder.Services.AddSingleton<QuadraService>();
 
-// Add services to the container.
+// Adicione estes registros no Program.cs
+builder.Services.AddScoped<IQuadraRepository, QuadraRepository>();
+builder.Services.AddScoped<IQuadraService, QuadraService>();
 
+// Add services to the container.
 var app = builder.Build();
 app.UseHttpsRedirection();
 
