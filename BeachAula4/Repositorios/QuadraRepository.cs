@@ -38,11 +38,11 @@ public class QuadraRepository : IQuadraRepository
         await _context.SaveChangesAsync();
     }
 
-    // Consulta avançada usando LINQ
-    public async Task<IEnumerable<Quadra>> ObterFiltradasAsync(bool? coberta, decimal valorMaximo)
+    // Consulta avançada usando LINQ: filtra por status "Ativa" opcional e teto de preço, ordenando por valor
+    public async Task<IEnumerable<Quadra>> ObterFiltradasAsync(bool? ativa, decimal valorMaximo)
     {
         return await _context.Quadras
-            .Where(q => (!coberta.HasValue || q.Coberta == coberta.Value) && q.ValorHora <= valorMaximo)
+            .Where(q => (!ativa.HasValue || q.Ativa == ativa.Value) && q.ValorHora <= valorMaximo)
             .OrderBy(q => q.ValorHora)
             .ToListAsync();
     }
