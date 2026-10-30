@@ -9,11 +9,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Adicionar serviços ao container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen>();
+builder.Services.AddSwaggerGen();
 
 // Configuração do Banco de Dados (SQLite)
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=beachtennis.db"));
+    options.UseSqlite("Data Source=beachtennis.db"));
 
 // Registro das Injeções de Dependência da Clean Architecture
 builder.Services.AddScoped<IQuadraRepository, QuadraRepository>();
